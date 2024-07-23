@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -25,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -146,6 +147,57 @@ fun ShoppingListApp() {
 }
 
 @Composable
+fun ShoppingItemEditor(item: ShoppingItem, onEditComplete: (String, Int) -> Unit) {
+    var itemName by remember { mutableStateOf(item.name) }
+    var itemQuantity by remember { mutableStateOf(item.quantity.toString()) }
+    var isEditing by remember { mutableStateOf(item.isEditing) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.medium
+            ),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            BasicTextField(
+                value = itemName,
+                onValueChange = { itemName = it },
+                singleLine = true,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(8.dp)
+            )
+            BasicTextField(
+                value = itemQuantity,
+                onValueChange = { itemQuantity = it },
+                singleLine = true,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(8.dp)
+            )
+        }
+
+        Button(
+            onClick = {
+                if (itemName.isNotBlank() && itemQuantity.isNotBlank()) {
+                    onEditComplete(itemName, itemQuantity.toInt() ?: 1)
+                    isEditing = false
+                }
+
+            },
+            enabled = !isEditing
+        ) {
+            Text(text = "Save")
+        }
+    }
+}
+
+@Composable
 fun ShoppingListItem(
     item: ShoppingItem,
     onEditClick: () -> Unit,
@@ -159,14 +211,14 @@ fun ShoppingListItem(
                 border = BorderStroke(2.dp, Color(0XFF018786)),
                 shape = RoundedCornerShape(20)
             ),
-        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text( text = item.name, modifier = Modifier.padding(8.dp))
-        Text( text = "Qty: ${item.quantity.toString()}", modifier = Modifier.padding(8.dp))
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentWidth(Alignment.End)
-            .padding(8.dp),
+        Text(text = item.name, modifier = Modifier.padding(8.dp))
+        Text(text = "Qty: ${item.quantity.toString()}", modifier = Modifier.padding(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.End)
+                .padding(8.dp),
         )
         {
             IconButton(onClick = onEditClick) {
