@@ -40,8 +40,8 @@ import androidx.compose.ui.window.DialogProperties
 
 data class ShoppingItem(
     val id: Int,
-    val name: String,
-    val quantity: Int,
+    var name: String,
+    var quantity: Int,
     var isEditing: Boolean = false
 )
 
@@ -68,8 +68,33 @@ fun ShoppingListApp() {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(sItems) {
-                ShoppingListItem(it, {}, {})
+            items(sItems) { item ->
+                if (item.isEditing) {
+                    ShoppingItemEditor(
+                        item = item,
+                        onEditComplete = { editedName, editedQuantity ->
+                            sItems = sItems.map {
+                                it.copy(isEditing = false)
+                            }
+                            val editedItem = sItems.find { it.id == item.id }
+                            editedItem?.let {
+                                it.name = editedName
+                                it.quantity = editedQuantity
+                            }
+                        })
+                } else {
+                    ShoppingListItem(
+                        item = item,
+                        onEditClick = {
+                            sItems = sItems.map {
+                                it.copy(isEditing = it.id == item.id)
+                            }
+                        },
+                        onDeleteClick = {
+                            sItems = sItems.filter { it.id != item.id }
+                        }
+                    )
+                }
             }
         }
     }
@@ -188,9 +213,8 @@ fun ShoppingItemEditor(item: ShoppingItem, onEditComplete: (String, Int) -> Unit
                     onEditComplete(itemName, itemQuantity.toInt() ?: 1)
                     isEditing = false
                 }
-
             },
-            enabled = !isEditing
+            enabled = isEditing
         ) {
             Text(text = "Save")
         }
