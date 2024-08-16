@@ -64,10 +64,12 @@ fun ShoppingListApp() {
         ) {
             Text(text = "Add Item")
         }
+        // Lista vertical quer apenas carrega o que será visivel em tela
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Composable que vai iterar sobre a minha lista de items e para cada item vai executar a callback definida em seu corpo
             items(sItems) { item ->
                 if (item.isEditing) {
                     ShoppingItemEditor(
